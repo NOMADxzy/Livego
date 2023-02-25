@@ -3,19 +3,30 @@ package main
 import (
 	"crypto/tls"
 	"fmt"
+	"github.com/gwuhaolin/livego/av"
 	"net"
 	"path"
 	"runtime"
 	"time"
 
-	"github.com/gwuhaolin/livego/configure"
-	"github.com/gwuhaolin/livego/protocol/api"
-	"github.com/gwuhaolin/livego/protocol/hls"
-	"github.com/gwuhaolin/livego/protocol/httpflv"
-	"github.com/gwuhaolin/livego/protocol/rtmp"
+	"github.com/NOMADxzy/livego/configure"
+	"github.com/NOMADxzy/livego/protocol/api"
+	"github.com/NOMADxzy/livego/protocol/hls"
+	"github.com/NOMADxzy/livego/protocol/httpflv"
+	"github.com/NOMADxzy/livego/protocol/rtmp"
 
 	log "github.com/sirupsen/logrus"
 )
+
+type MyMessageHandler struct{}
+
+func (handler MyMessageHandler) OnReceived(s *rtmp.Stream, message *av.Packet) {
+	fmt.Println("收到包")
+}
+
+func (handler MyMessageHandler) OnStreamCreated(s *rtmp.Stream, message *av.Packet) {
+	fmt.Println("流创建")
+}
 
 var VERSION = "master"
 
@@ -161,7 +172,8 @@ func main() {
 	apps := configure.Applications{}
 	configure.Config.UnmarshalKey("server", &apps)
 	for _, app := range apps {
-		stream := rtmp.NewRtmpStream()
+		myMessageHandler := &MyMessageHandler{}
+		stream := rtmp.NewRtmpStream(myMessageHandler)
 		var hlsServer *hls.Server
 		if app.Hls {
 			hlsServer = startHls()
@@ -174,5 +186,6 @@ func main() {
 		}
 
 		startRtmp(stream, hlsServer)
+
 	}
 }
