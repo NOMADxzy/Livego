@@ -18,12 +18,14 @@ var (
 )
 
 type RtmpStream struct {
-	streams *sync.Map //key
+	streams        *sync.Map //key
+	messageHandler MessageHandler
 }
 
-func NewRtmpStream() *RtmpStream {
+func NewRtmpStream(handler MessageHandler) *RtmpStream {
 	ret := &RtmpStream{
-		streams: &sync.Map{},
+		streams:        &sync.Map{},
+		messageHandler: handler,
 	}
 	go ret.CheckAlive()
 	return ret
@@ -39,13 +41,13 @@ func (rs *RtmpStream) HandleReader(r av.ReadCloser) {
 		stream.TransStop()
 		id := stream.ID()
 		if id != EmptyID && id != info.UID {
-			ns := NewStream()
+			ns := NewStream(rs.messageHandler)
 			stream.Copy(ns)
 			stream = ns
 			rs.streams.Store(info.Key, ns)
 		}
 	} else {
-		stream = NewStream()
+		stream = NewStream(rs.messageHandler)
 		rs.streams.Store(info.Key, stream)
 		stream.info = info
 	}
@@ -61,7 +63,7 @@ func (rs *RtmpStream) HandleWriter(w av.WriteCloser) {
 	item, ok := rs.streams.Load(info.Key)
 	if !ok {
 		log.Debugf("HandleWriter: not found create new info[%v]", info)
-		s = NewStream()
+		s = NewStream(rs.messageHandler)
 		rs.streams.Store(info.Key, s)
 		s.info = info
 	} else {
@@ -93,6 +95,37 @@ type Stream struct {
 	r       av.ReadCloser
 	ws      *sync.Map
 	info    av.Info
+	handler MessageHandler
+	rtpSsrc uint32
+}
+
+//MyCode
+type MessageHandler interface {
+	// Received message
+	OnReceived(stream *Stream, message *av.Packet)
+	// Stream Created
+	OnStreamCreated(stream *Stream)
+}
+
+func (s *Stream) Info() av.Info {
+	if s.r != nil {
+		return s.r.Info()
+	}
+	return av.Info{}
+}
+
+func (s *Stream) Channel() string {
+	path := s.Info().Key
+	paths := strings.SplitN(path, "/", 2)
+	return paths[1]
+}
+
+func (s *Stream) Ssrc() uint32 {
+	return s.rtpSsrc
+}
+
+func (s *Stream) SetSsrc(ssrc uint32) {
+	s.rtpSsrc = ssrc
 }
 
 type PackWriterCloser struct {
@@ -104,10 +137,11 @@ func (p *PackWriterCloser) GetWriter() av.WriteCloser {
 	return p.w
 }
 
-func NewStream() *Stream {
+func NewStream(handler MessageHandler) *Stream {
 	return &Stream{
-		cache: cache.NewCache(),
-		ws:    &sync.Map{},
+		cache:   cache.NewCache(),
+		ws:      &sync.Map{},
+		handler: handler,
 	}
 }
 
@@ -139,6 +173,7 @@ func (s *Stream) Copy(dst *Stream) {
 
 func (s *Stream) AddReader(r av.ReadCloser) {
 	s.r = r
+	s.handler.OnStreamCreated(s)
 	go s.TransStart()
 }
 
@@ -320,6 +355,7 @@ func (s *Stream) TransStart() {
 			return
 		}
 		err := s.r.Read(&p)
+		s.handler.OnReceived(s, &p)
 		if err != nil {
 			s.closeInter()
 			s.isStart = false
