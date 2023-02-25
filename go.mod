@@ -1,4 +1,4 @@
-module github.com/NOMADxzy/Livego
+module github.com/NOMADxzy/livego
 
 go 1.13
 
