@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/tls"
 	"fmt"
+	"github.com/gwuhaolin/livego/av"
 	"net"
 	"path"
 	"runtime"
@@ -18,6 +19,17 @@ import (
 )
 
 var VERSION = "master"
+
+type MyMessageHandler struct{}
+
+// 自定义流创建方法
+func (handler MyMessageHandler) OnStreamCreated(stream *rtmp.Stream) {
+	fmt.Println("NewStreamCreated ")
+}
+
+func (handler MyMessageHandler) OnReceived(stream *rtmp.Stream, message *av.Packet) {
+	fmt.Println("OnReceived")
+}
 
 func startHls() *hls.Server {
 	hlsAddr := configure.Config.GetString("hls_addr")
@@ -160,8 +172,9 @@ func main() {
 
 	apps := configure.Applications{}
 	configure.Config.UnmarshalKey("server", &apps)
+	myMessageHandler := &MyMessageHandler{}
 	for _, app := range apps {
-		stream := rtmp.NewRtmpStream()
+		stream := rtmp.NewRtmpStream(myMessageHandler)
 		var hlsServer *hls.Server
 		if app.Hls {
 			hlsServer = startHls()
