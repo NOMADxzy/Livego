@@ -82,6 +82,7 @@ func (rs *RtmpStream) CheckAlive() {
 		rs.streams.Range(func(key, val interface{}) bool {
 			v := val.(*Stream)
 			if v.CheckAlive() == 0 {
+				v.handler.OnStreamClosed(v)
 				rs.streams.Delete(key)
 			}
 			return true
@@ -105,6 +106,8 @@ type MessageHandler interface {
 	OnReceived(stream *Stream, message *av.Packet)
 	// Stream Created
 	OnStreamCreated(stream *Stream)
+	// Stream Closed
+	OnStreamClosed(stream *Stream)
 }
 
 func (s *Stream) Info() av.Info {
