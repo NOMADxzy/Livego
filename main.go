@@ -3,17 +3,17 @@ package main
 import (
 	"crypto/tls"
 	"fmt"
-	"github.com/gwuhaolin/livego/av"
+	"github.com/NOMADxzy/livego/av"
 	"net"
 	"path"
 	"runtime"
 	"time"
 
-	"github.com/gwuhaolin/livego/configure"
-	"github.com/gwuhaolin/livego/protocol/api"
-	"github.com/gwuhaolin/livego/protocol/hls"
-	"github.com/gwuhaolin/livego/protocol/httpflv"
-	"github.com/gwuhaolin/livego/protocol/rtmp"
+	"github.com/NOMADxzy/livego/configure"
+	"github.com/NOMADxzy/livego/protocol/api"
+	"github.com/NOMADxzy/livego/protocol/hls"
+	"github.com/NOMADxzy/livego/protocol/httpflv"
+	"github.com/NOMADxzy/livego/protocol/rtmp"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -21,6 +21,11 @@ import (
 var VERSION = "master"
 
 type MyMessageHandler struct{}
+
+func (handler MyMessageHandler) OnStreamClosed(stream *rtmp.Stream) {
+	//TODO implement me
+	panic("implement me")
+}
 
 // 自定义流创建方法
 func (handler MyMessageHandler) OnStreamCreated(stream *rtmp.Stream) {
