@@ -3,13 +3,13 @@ package main
 import (
 	"crypto/tls"
 	"fmt"
-	"github.com/gwuhaolin/livego/av"
+	"github.com/NOMADxzy/livego/av"
+	"github.com/NOMADxzy/livego/configure"
 	"net"
 	"path"
 	"runtime"
 	"time"
 
-	"github.com/NOMADxzy/livego/configure"
 	"github.com/NOMADxzy/livego/protocol/api"
 	"github.com/NOMADxzy/livego/protocol/hls"
 	"github.com/NOMADxzy/livego/protocol/httpflv"
@@ -21,11 +21,11 @@ import (
 type MyMessageHandler struct{}
 
 func (handler MyMessageHandler) OnReceived(s *rtmp.Stream, message *av.Packet) {
-	fmt.Println("收到包")
+	//fmt.Println("收到包", s.Ssrc())
 }
 
-func (handler MyMessageHandler) OnStreamCreated(s *rtmp.Stream, message *av.Packet) {
-	fmt.Println("流创建")
+func (handler MyMessageHandler) OnStreamCreated(s *rtmp.Stream) {
+	fmt.Println("流创建", s.Ssrc())
 }
 
 var VERSION = "master"
