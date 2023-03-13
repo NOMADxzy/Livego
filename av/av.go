@@ -69,6 +69,23 @@ type Packet struct {
 	Data       []byte
 }
 
+func (packet *Packet) Parse(b []byte, moveHead bool) {
+	switch b[0] {
+	case MetadatAMF0:
+		packet.IsMetadata = true
+	case TAG_AUDIO:
+		packet.IsAudio = true
+	case TAG_VIDEO:
+		packet.IsVideo = true
+		break
+	}
+	packet.TimeStamp = uint32(b[7])<<24 + uint32(b[4])<<16 + uint32(b[5])<<8 + uint32(b[6])
+	packet.Data = b
+	if moveHead {
+		packet.Data = b[11:]
+	}
+}
+
 type PacketHeader interface {
 }
 
