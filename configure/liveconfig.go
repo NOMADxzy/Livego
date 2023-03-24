@@ -133,8 +133,8 @@ func initDefault() {
 	pflag.Int("write_timeout", 10, "write time out")
 	pflag.Int("gop_num", 1, "gop num")
 	pflag.Bool("enable_tls_verify", true, "Use system root CA to verify RTMPS connection, set this flag to false on Windows")
-	//pflag.Parse()
-	//Config.BindPFlags(pflag.CommandLine)
+	pflag.Parse()
+	Config.BindPFlags(pflag.CommandLine)
 
 	// File
 	Config.SetConfigFile(Config.GetString("config_file"))
