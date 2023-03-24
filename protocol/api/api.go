@@ -130,6 +130,7 @@ func (s *Server) Serve(l net.Listener) error {
 type stream struct {
 	Key             string `json:"key"`
 	Url             string `json:"url"`
+	StartTime       int64  `json:"start_time"`
 	Ssrc            uint32 `json:"ssrc"`
 	StreamId        uint32 `json:"stream_id"`
 	VideoTotalBytes uint64 `json:"video_total_bytes"`
@@ -175,7 +176,7 @@ func (server *Server) GetLiveStatics(w http.ResponseWriter, req *http.Request) {
 					switch s.GetReader().(type) {
 					case *rtmp.VirReader:
 						v := s.GetReader().(*rtmp.VirReader)
-						msg := stream{key.(string), v.Info().URL, s.Ssrc(), v.ReadBWInfo.StreamId, v.ReadBWInfo.VideoDatainBytes, v.ReadBWInfo.VideoSpeedInBytesperMS,
+						msg := stream{key.(string), v.Info().URL, s.StartTime, s.Ssrc(), v.ReadBWInfo.StreamId, v.ReadBWInfo.VideoDatainBytes, v.ReadBWInfo.VideoSpeedInBytesperMS,
 							v.ReadBWInfo.AudioDatainBytes, v.ReadBWInfo.AudioSpeedInBytesperMS}
 						msgs.Publishers = append(msgs.Publishers, msg)
 					}
@@ -192,7 +193,7 @@ func (server *Server) GetLiveStatics(w http.ResponseWriter, req *http.Request) {
 						switch pw.GetWriter().(type) {
 						case *rtmp.VirWriter:
 							v := pw.GetWriter().(*rtmp.VirWriter)
-							msg := stream{key.(string), v.Info().URL, uint32(0), v.WriteBWInfo.StreamId, v.WriteBWInfo.VideoDatainBytes, v.WriteBWInfo.VideoSpeedInBytesperMS,
+							msg := stream{key.(string), v.Info().URL, int64(0), uint32(0), v.WriteBWInfo.StreamId, v.WriteBWInfo.VideoDatainBytes, v.WriteBWInfo.VideoSpeedInBytesperMS,
 								v.WriteBWInfo.AudioDatainBytes, v.WriteBWInfo.AudioSpeedInBytesperMS}
 							msgs.Players = append(msgs.Players, msg)
 						}
@@ -216,7 +217,7 @@ func (server *Server) GetLiveStatics(w http.ResponseWriter, req *http.Request) {
 				switch s.GetReader().(type) {
 				case *rtmp.VirReader:
 					v := s.GetReader().(*rtmp.VirReader)
-					msg := stream{room, v.Info().URL, s.Ssrc(), v.ReadBWInfo.StreamId, v.ReadBWInfo.VideoDatainBytes, v.ReadBWInfo.VideoSpeedInBytesperMS,
+					msg := stream{room, v.Info().URL, s.StartTime, s.Ssrc(), v.ReadBWInfo.StreamId, v.ReadBWInfo.VideoDatainBytes, v.ReadBWInfo.VideoSpeedInBytesperMS,
 						v.ReadBWInfo.AudioDatainBytes, v.ReadBWInfo.AudioSpeedInBytesperMS}
 					msgs.Publishers = append(msgs.Publishers, msg)
 				}
@@ -228,7 +229,7 @@ func (server *Server) GetLiveStatics(w http.ResponseWriter, req *http.Request) {
 						switch pw.GetWriter().(type) {
 						case *rtmp.VirWriter:
 							v := pw.GetWriter().(*rtmp.VirWriter)
-							msg := stream{room, v.Info().URL, s.Ssrc(), v.WriteBWInfo.StreamId, v.WriteBWInfo.VideoDatainBytes, v.WriteBWInfo.VideoSpeedInBytesperMS,
+							msg := stream{room, v.Info().URL, s.StartTime, s.Ssrc(), v.WriteBWInfo.StreamId, v.WriteBWInfo.VideoDatainBytes, v.WriteBWInfo.VideoSpeedInBytesperMS,
 								v.WriteBWInfo.AudioDatainBytes, v.WriteBWInfo.AudioSpeedInBytesperMS}
 							msgs.Players = append(msgs.Players, msg)
 						}

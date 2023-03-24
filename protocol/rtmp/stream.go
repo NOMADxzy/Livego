@@ -91,13 +91,14 @@ func (rs *RtmpStream) CheckAlive() {
 }
 
 type Stream struct {
-	isStart bool
-	cache   *cache.Cache
-	r       av.ReadCloser
-	ws      *sync.Map
-	info    av.Info
-	handler MessageHandler
-	rtpSsrc uint32
+	isStart   bool
+	cache     *cache.Cache
+	r         av.ReadCloser
+	ws        *sync.Map
+	info      av.Info
+	handler   MessageHandler
+	rtpSsrc   uint32
+	StartTime int64
 }
 
 //MyCode

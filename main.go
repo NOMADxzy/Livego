@@ -33,7 +33,7 @@ func (handler MyMessageHandler) OnStreamCreated(stream *rtmp.Stream) {
 }
 
 func (handler MyMessageHandler) OnReceived(stream *rtmp.Stream, message *av.Packet) {
-	fmt.Println("OnReceived")
+	//fmt.Println("OnReceived")
 }
 
 func startHls() *hls.Server {
