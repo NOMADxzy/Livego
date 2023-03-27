@@ -120,6 +120,7 @@ func (s *Server) Serve(apiAddr string, certFile string, keyFile string) error {
 		s.handleDelete(w, r)
 	})
 	mux.HandleFunc("/stat/livestat", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		s.GetLiveStatics(w, r)
 	})
 
