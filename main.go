@@ -131,10 +131,6 @@ func startAPI(stream *rtmp.RtmpStream) {
 	rtmpAddr := configure.Config.GetString("rtmp_addr")
 
 	if apiAddr != "" {
-		opListen, err := net.Listen("tcp", apiAddr)
-		if err != nil {
-			log.Fatal(err)
-		}
 		opServer := api.NewServer(stream, rtmpAddr)
 		go func() {
 			defer func() {
@@ -143,7 +139,7 @@ func startAPI(stream *rtmp.RtmpStream) {
 				}
 			}()
 			log.Info("HTTP-API listen On ", apiAddr)
-			opServer.Serve(opListen)
+			opServer.Serve(apiAddr, "", "")
 		}()
 	}
 }
